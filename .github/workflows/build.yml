@@ -11,15 +11,23 @@ jobs:
       contents: read
       packages: write
 
+    env:
+      OWNER: ${{ github.repository_owner }}
+      OWNER_LC: ${{ (github.repository_owner) }}
+
     steps:
+    - name: Convert owner to lowercase
+      id: lower
+      run: echo "OWNER_LC=${OWNER,,}" >> $GITHUB_ENV
+
     - name: Checkout
       uses: actions/checkout@v3
-      
+
     - name: Log in to GHCR
       uses: docker/login-action@v2
       with:
         registry: ghcr.io
-        username: ${{ github.actor }}
+        username: ${{ secrets.GITHUB_ACTOR }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Build and push image
@@ -27,5 +35,4 @@ jobs:
       with:
         context: .
         push: true
-        tags: ghcr.io/${{ github.repository_owner | lower }}/telegram-mathjax-bot:latest
-
+        tags: ghcr.io/${{ env.OWNER_LC }}/telegram-mathjax-bot:latest
